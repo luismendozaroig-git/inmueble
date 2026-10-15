@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InmoData Paraguay - Sistema Integrado v02</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-hover: #1d4ed8;
+            --bg-light: #f3f4f6;
+            --text-main: #1f2937;
+            --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-main); line-height: 1.5; padding-bottom: 40px; }
+        header { background: white; border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .logo { font-size: 1.25rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-btn { background: #f9fafb; border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+        .nav-btn:hover { background: #f3f4f6; }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .card { background: white; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; border: 1px solid var(--border); }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .stat-card { border-left: 4px solid var(--primary); }
+        .stat-card h3 { font-size: 1.75rem; font-weight: bold; margin-top: 0.5rem; }
+        .stat-card p { font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.875rem; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f9fafb; font-weight: 600; color: #4b5563; }
+        .btn { background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-danger { background: #dc2626; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-success { background: #16a34a; }
+        .btn-success:hover { background: #15803d; }
+        .badge { padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-active { background: #dcfce7; color: #166534; }
+        .badge-inactive { background: #fee2e2; color: #991b1b; }
+        input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.375rem; margin-top: 0.25rem; margin-bottom: 0.75rem; font-size: 0.875rem; }
+        textarea { resize: vertical; min-height: 60px; }
+        .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; font-size: 0.875rem; }
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 0.75rem; width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+        .form-group-full { grid-column: 1 / -1; }
+        .form-section-title { font-weight: bold; font-size: 0.95rem; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 0.25rem; margin: 1rem 0 0.5rem 0; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span>🏢 InmoData Paraguay v02</span>
+        </div>
+        <nav>
+            <button onclick="cambiarVista('resumen')" class="nav-btn active" id="btn-resumen">Resumen</button>
+            <button onclick="cambiarVista('mercado')" class="nav-btn" id="btn-mercado">Consultar mercado</button>
+            <button onclick="cambiarVista('publicaciones')" class="nav-btn" id="btn-publicaciones">Publicaciones</button>
+            <button onclick="cambiarVista('valoracion')" class="nav-btn" id="btn-valoracion">Informe de valoración</button>
+            <button onclick="cambiarVista('respaldo')" class="nav-btn" id="btn-respaldo">Datos y respaldo</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="alertaGlobal"></div>
+
+        <!-- 1. RESUMEN -->
+        <section id="sec-resumen" class="view-section active">
+            <div class="grid-3">
+                <div class="card stat-card">
+                    <p>Total Inmuebles Base</p>
+                    <h3 id="lblTotalInm">0</h3>
+                </div>
+                <div class="card stat-card" style="border-left-color: #16a34a;">
+                    <p>Estado Sincronización</p>
+                    <h3 id="lblEstadoSync" style="font-size: 1.25rem; color: #16a34a; margin-top:0.75rem;">Listo</h3>
+                </div>
+                <div class="card stat-card" style="border-left-color: #d97706;">
+                    <p>Ref. Mercado Externo</p>
+                    <h3 id="lblRefMercado">1.420 Reg.</h3>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Vista General Sincronizada</h2>
+                <p style="color: #6b7280; margin-top: 0.5rem;">Haz clic en el botón para sincronizar tus datos desde Google Drive (incluyendo el código 40000).</p>
+                <button class="btn" style="margin-top: 1rem;" onclick="sincronizarDatos()">Sincronizar Ahora</button>
+            </div>
+        </section>
+
+        <!-- 2. CONSULTAR MERCADO -->
+        <section id="sec-mercado" class="view-section">
+            <div class="card">
+                <h2>Cruce con Mercado Inmobiliario</h2>
+                <div style="margin-top: 1rem;">
+                    <label>Buscar (Código, Zona o Ciudad):</label>
+                    <input type="text" id="filtroZonaMercado" placeholder="Ej. 40000, Asunción, Eusebio Ayala..." oninput="analizarMercado(1)">
+                </div>
+                <div id="tablaCruceMercado" style="margin-top: 1rem; overflow-x: auto;"></div>
+            </div>
+        </section>
+
+        <!-- 3. PUBLICACIONES -->
+        <section id="sec-publicaciones" class="view-section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Gestión de Publicaciones y Enlaces</h2>
+                    <button class="btn btn-success" onclick="abrirModalFormulario()">+ Nuevo Inmueble</button>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <input type="text" id="filtroPublicaciones" placeholder="Filtrar listado por código, dirección o ciudad..." oninput="renderizarPublicaciones()">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Tipo / Modalidad</th>
+                                <th>Ubicación / Ciudad</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPublicaciones"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. INFORME DE VALORACIÓN -->
+        <section id="sec-valoracion" class="view-section">
+            <div class="card">
+                <h2>Resumen Paramétrico de Valoración</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <label>Superficie Terreno (m²):</label>
+                        <input type="number" id="valTerreno" value="360" oninput="calcularTasacion()">
+                    </div>
+                    <div>
+                        <label>Superficie Construida (m²):</label>
+                        <input type="number" id="valConstruccion" value="180" oninput="calcularTasacion()">
+                    </div>
+                </div>
+                <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border: 1px solid var(--border);">
+                    <h4>Valor Estimado Paramétrico:</h4>
+                    <p id="resultadoTasacion" style="font-size: 1.5rem; font-weight: bold; color: var(--primary); margin-top: 0.5rem;">USD 185.000</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. DATOS Y RESPALDO -->
+        <section id="sec-respaldo" class="view-section">
+            <div class="card">
+                <h2>Configuración y Sincronización Cloud</h2>
+                <label>URL Web App (Google Apps Script):</label>
+                <input type="text" id="inputWebApp" placeholder="https://script.google.com/macros/s/.../exec">
+                <button class="btn" onclick="guardarConfig()">Guardar Configuración</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL FORMULARIO -->
+    <div id="modalFormulario" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitulo" style="margin-bottom: 1rem; color: var(--primary);">Gestión de Inmueble Completo</h3>
+            <input type="hidden" id="formIndex">
+
+            <div class="form-grid">
+                <div class="form-section-title">1. Datos de Clasificación y Captación</div>
+                <div><label>CODIGO:</label><input type="text" id="f_codigo"></div>
+                <div><label>ASESOR:</label><input type="text" id="f_asesor"></div>
+                <div><label>MARCA:</label><input type="text" id="f_marca"></div>
+                <div>
+                    <label>MODALIDAD:</label>
+                    <select id="f_modalidad"><option value="VENTA">VENTA</option><option value="ALQUILER">ALQUILER</option></select>
+                </div>
+                <div><label>TIPO:</label><input type="text" id="f_tipo"></div>
+
+                <div class="form-section-title">2. Dirección y Ubicación</div>
+                <div class="form-group-full"><label>DIRECCION:</label><input type="text" id="f_direccion"></div>
+                <div><label>BARRIO:</label><input type="text" id="f_barrio"></div>
+                <div><label>CIUDAD:</label><input type="text" id="f_ciudad"></div>
+                <div><label>UBICACION (Google Maps):</label><input type="text" id="f_ubicacion"></div>
+                <div><label>COORDENADA:</label><input type="text" id="f_coordenada"></div>
+
+                <div class="form-section-title">3. Valores y Estado</div>
+                <div>
+                    <label>MONEDA:</label>
+                    <select id="f_moneda"><option value="Gs">Gs</option><option value="U$">U$</option></select>
+                </div>
+                <div><label>PRECIO:</label><input type="text" id="f_precio"></div>
+                <div><label>PR. BASE:</label><input type="text" id="f_pr_base"></div>
+                <div>
+                    <label>ESTADO:</label>
+                    <select id="f_estado">
+                        <option value="ACTIVO">ACTIVO</option>
+                        <option value="SUSPENDIDO">SUSPENDIDO</option>
+                        <option value="ALQUILADO">ALQUILADO</option>
+                        <option value="VENDIDO">VENDIDO</option>
+                        <option value="ANULADO">ANULADO</option>
+                    </select>
+                </div>
+                <div><label>INICIO_CONTRATO:</label><input type="text" id="f_inicio_contrato"></div>
+                <div><label>FIN_CONTRATO:</label><input type="text" id="f_fin_contrato"></div>
+                <div><label>CARTEL:</label><input type="text" id="f_cartel"></div>
+
+                <div class="form-section-title">4. Superficies y Propietario</div>
+                <div><label>TERRENO M2:</label><input type="text" id="f_terreno_m2"></div>
+                <div><label>CONSTR. M2:</label><input type="text" id="f_constr_m2"></div>
+                <div><label>PROPIETARIO:</label><input type="text" id="f_propietario"></div>
+
+                <div class="form-section-title">5. Detalles y Observaciones</div>
+                <div class="form-group-full"><label>DESCRIPCION:</label><textarea id="f_descripcion"></textarea></div>
+                <div class="form-group-full"><label>OBSERVACION:</label><textarea id="f_observacion"></textarea></div>
+
+                <div class="form-section-title">6. Multimedia y Documentos PDF</div>
+                <div><label>FOTO 1:</label><input type="text" id="f_foto1"></div>
+                <div><label>FOTO 2:</label><input type="text" id="f_foto2"></div>
+                <div><label>FOTO 3:</label><input type="text" id="f_foto3"></div>
+                <div><label>FOTO 4:</label><input type="text" id="f_foto4"></div>
+                <div><label>FOTO 5:</label><input type="text" id="f_foto5"></div>
+                <div><label>Ultima_Generacion_PDF:</label><input type="text" id="f_ultima_pdf"></div>
+                <div class="form-group-full"><label>Archivo_PDF:</label><input type="text" id="f_archivo_pdf"></div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-success" style="flex:1; justify-content:center;" onclick="guardarFormulario()">Guardar Inmueble</button>
+                <button class="btn btn-danger" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let baseInmuebles = [];
+        let paginaMercadoActual = 1;
+        const registrosPorPagina = 15;
+
+        // Carga inicial automática o sincronizada
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('inmo_webapp');
+            if(saved) {
+                document.getElementById('inputWebApp').value = saved;
+                sincronizarDatos();
+            } else {
+                baseInmuebles = [
+                    { CODIGO: "40000", ASESOR: "JORGE FRUTOS", MARCA: "PARTICULAR", MODALIDAD: "VENTA", TIPO: "TERRENO", DIRECCION: "AV. EUSEBIO AYALA 4788 - KM 6", CIUDAD: "ASUNCION", MONEDA: "U$", PRECIO: "1.800.000", ESTADO: "SUSPENDIDO" }
+                ];
+                actualizarEstadisticas();
+                renderizarPublicaciones();
+            }
+        });
+
+        function cambiarVista(id) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`sec-${id}`).classList.add('active');
+            document.getElementById(`btn-${id}`).classList.add('active');
+            if(id === 'publicaciones') renderizarPublicaciones();
+            if(id === 'mercado') analizarMercado(1);
+        }
+
+        function mostrarAlerta(msg, tipo = 'success') {
+            const cont = document.getElementById('alertaGlobal');
+            if(!cont) return;
+            cont.innerHTML = `<div class="alert alert-${tipo === 'success' ? 'success' : 'error'}">${msg}</div>`;
+            setTimeout(() => cont.innerHTML = '', 4000);
+        }
+
+        function guardarConfig() {
+            const url = document.getElementById('inputWebApp').value.trim();
+            localStorage.setItem('inmo_webapp', url);
+            mostrarAlerta("Configuración guardada. Sincronizando...");
+            sincronizarDatos();
+        }
+
+        function actualizarEstadisticas() {
+            const elTotal = document.getElementById('lblTotalInm');
+            if(elTotal) elTotal.textContent = baseInmuebles.length;
+        }
+
+        async function sincronizarDatos() {
+            const url = localStorage.getItem('inmo_webapp');
+            if(!url) {
+                mostrarAlerta("Configure primero la URL del Web App en 'Datos y respaldo'.", "error");
+                cambiarVista('respaldo');
+                return;
+            }
+            try {
+                mostrarAlerta("Sincronizando con Google Drive...", "success");
+                const response = await fetch(url);
+                const data = await response.json();
+                if(data && data.items && data.items.length > 0) {
+                    baseInmuebles = data.items;
+                }
+                actualizarEstadisticas();
+                renderizarPublicaciones();
+                mostrarAlerta(`Sincronización completada. Total registros: ${baseInmuebles.length}`);
+            } catch(e) {
+                mostrarAlerta("Error al conectar con la nube. Verifique la URL del Web App.", "error");
+            }
+        }
+
+        function renderizarPublicaciones() {
+            const tbody = document.getElementById('tbodyPublicaciones');
+            const filtroInput = document.getElementById('filtroPublicaciones');
+            const filtro = filtroInput ? filtroInput.value.toLowerCase() : '';
+            
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            const filtrados = baseInmuebles.filter(i => {
+                const cod = (i.CODIGO || i.codigo || '').toString().toLowerCase();
+                const dir = (i.DIRECCION || i.direccion || '').toLowerCase();
+                const ciudad = (i.CIUDAD || i.ciudad || '').toLowerCase();
+                return cod.includes(filtro) || dir.includes(filtro) || ciudad.includes(filtro);
+            });
+
+            filtrados.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                const codigo = item.CODIGO || item.codigo || '-';
+                const tipo = item.TIPO || item.tipo || '-';
+                const modalidad = item.MODALIDAD || item.modalidad || '-';
+                const ciudad = item.CIUDAD || item.ciudad || '';
+                const barrio = item.BARRIO || item.barrio || '';
+                const ciudadComp = ciudad + (barrio ? ` (${barrio})` : '');
+                const moneda = item.MONEDA || item.moneda || '';
+                const precio = item.PRECIO || item.precio || '0';
+                const estado = item.ESTADO || item.estado || 'ACTIVO';
+                const ubicacion = item.UBICACION || item.ubicacion || '';
+                
+                tr.innerHTML = `
+                    <td><strong>${codigo}</strong></td>
+                    <td>${tipo} (${modalidad})</td>
+                    <td>${ciudadComp}</td>
+                    <td>${moneda} ${precio}</td>
+                    <td><span class="badge ${estado === 'ACTIVO' ? 'badge-active' : 'badge-inactive'}">${estado}</span></td>
+                    <td style="display: flex; gap: 0.25rem;">
+                        <button class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="verEnMaps('${ubicacion}')">📍 Maps</button>
+                        <button class="btn btn-success" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="abrirModalFormulario(${index})">✏️ Editar</button>
+                        <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="eliminarInmueble(${index})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalFormulario(index = null) {
+            const campos = [
+                'codigo', 'asesor', 'marca', 'modalidad', 'tipo', 'direccion', 'barrio', 'ciudad',
+                'ubicacion', 'coordenada', 'moneda', 'precio', 'pr_base', 'estado', 'inicio_contrato',
+                'fin_contrato', 'cartel', 'terreno_m2', 'constr_m2', 'propietario', 'descripcion',
+                'observacion', 'foto1', 'foto2', 'foto3', 'foto4', 'foto5', 'ultima_pdf', 'archivo_pdf'
+            ];
+
+            if (index !== null && baseInmuebles[index]) {
+                const item = baseInmuebles[index];
+                document.getElementById('modalTitulo').textContent = 'Editar Inmueble #' + (item.CODIGO || item.codigo || '');
+                document.getElementById('formIndex').value = index;
+
+                campos.forEach(c => {
+                    const el = document.getElementById('f_' + c);
+                    if(el) {
+                        const valKey = c.toUpperCase();
+                        const valKeyLower = c.toLowerCase();
+                        el.value = item[valKey] !== undefined ? item[valKey] : (item[valKeyLower] !== undefined ? item[valKeyLower] : '');
+                    }
+                });
+            } else {
+                document.getElementById('modalTitulo').textContent = 'Nuevo Inmueble';
+                document.getElementById('formIndex').value = '';
+                campos.forEach(c => {
+                    const el = document.getElementById('f_' + c);
+                    if(el) el.value = '';
+                });
+                document.getElementById('f_codigo').value = (20000 + baseInmuebles.length).toString();
+                document.getElementById('f_modalidad').value = 'VENTA';
+                document.getElementById('f_moneda').value = 'U$';
+                document.getElementById('f_estado').value = 'ACTIVO';
+            }
+            document.getElementById('modalFormulario').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalFormulario').classList.remove('active');
+        }
+
+        function guardarFormulario() {
+            const indexVal = document.getElementById('formIndex').value;
+            const registro = {
+                CODIGO: document.getElementById('f_codigo').value,
+                ASESOR: document.getElementById('f_asesor').value,
+                MARCA: document.getElementById('f_marca').value,
+                MODALIDAD: document.getElementById('f_modalidad').value,
+                TIPO: document.getElementById('f_tipo').value,
+                DIRECCION: document.getElementById('f_direccion').value,
+                BARRIO: document.getElementById('f_barrio').value,
+                CIUDAD: document.getElementById('f_ciudad').value,
+                UBICACION: document.getElementById('f_ubicacion').value,
+                COORDENADA: document.getElementById('f_coordenada').value,
+                MONEDA: document.getElementById('f_moneda').value,
+                PRECIO: document.getElementById('f_precio').value,
+                PR_BASE: document.getElementById('f_pr_base').value,
+                ESTADO: document.getElementById('f_estado').value,
+                INICIO_CONTRATO: document.getElementById('f_inicio_contrato').value,
+                FIN_CONTRATO: document.getElementById('f_fin_contrato').value,
+                CARTEL: document.getElementById('f_cartel').value,
+                TERRENO_M2: document.getElementById('f_terreno_m2').value,
+                CONSTR_M2: document.getElementById('f_constr_m2').value,
+                PROPIETARIO: document.getElementById('f_propietario').value,
+                DESCRIPCION: document.getElementById('f_descripcion').value,
+                OBSERVACION: document.getElementById('f_observacion').value,
+                FOTO1: document.getElementById('f_foto1').value,
+                FOTO2: document.getElementById('f_foto2').value,
+                FOTO3: document.getElementById('f_foto3').value,
+                FOTO4: document.getElementById('f_foto4').value,
+                FOTO5: document.getElementById('f_foto5').value,
+                Ultima_Generacion_PDF: document.getElementById('f_ultima_pdf').value,
+                Archivo_PDF: document.getElementById('f_archivo_pdf').value
+            };
+
+            if (indexVal !== '') {
+                baseInmuebles[parseInt(indexVal)] = registro;
+                mostrarAlerta("Registro actualizado con éxito.");
+            } else {
+                baseInmuebles.unshift(registro);
+                mostrarAlerta("Nuevo inmueble agregado con éxito.");
+            }
+
+            cerrarModal();
+            renderizarPublicaciones();
+            actualizarEstadisticas();
+        }
+
+        function verEnMaps(url) {
+            if(url && url.startsWith('http')) {
+                window.open(url, '_blank');
+            } else {
+                alert("Este inmueble no tiene una URL de Google Maps válida registrada.");
+            }
+        }
+
+        function eliminarInmueble(index) {
+            if(confirm("¿Estás seguro de eliminar este registro?")) {
+                baseInmuebles.splice(index, 1);
+                renderizarPublicaciones();
+                actualizarEstadisticas();
+                mostrarAlerta("Registro eliminado correctamente.");
+            }
+        }
+
+        function analizarMercado(pagina = 1) {
+            paginaMercadoActual = pagina;
+            const inputFiltro = document.getElementById('filtroZonaMercado');
+            const filtro = inputFiltro ? inputFiltro.value.toLowerCase() : '';
+            const contenedor = document.getElementById('tablaCruceMercado');
+            
+            if(!contenedor) return;
+
+            const filtrados = baseInmuebles.filter(i => {
+                const cod = (i.CODIGO || i.codigo || '').toString().toLowerCase();
+                const ciudad = (i.CIUDAD || i.ciudad || '').toLowerCase();
+                const barrio = (i.BARRIO || i.barrio || '').toLowerCase();
+                const dir = (i.DIRECCION || i.direccion || '').toLowerCase();
+                return cod.includes(filtro) || ciudad.includes(filtro) || barrio.includes(filtro) || dir.includes(filtro);
+            });
+            
+            if (filtrados.length === 0) {
+                contenedor.innerHTML = '<p style="color:#dc2626; padding:1rem;">No se encontraron registros que coincidan con la búsqueda.</p>';
+                return;
+            }
+
+            const totalPaginas = Math.ceil(filtrados.length / registrosPorPagina);
+            if (paginaMercadoActual > totalPaginas) paginaMercadoActual = totalPaginas;
+            if (paginaMercadoActual < 1) paginaMercadoActual = 1;
+
+            const inicio = (paginaMercadoActual - 1) * registrosPorPagina;
+            const fin = inicio + registrosPorPagina;
+            const registrosPagina = filtrados.slice(inicio, fin);
+
+            let html = `<table><thead><tr><th>Código</th><th>Zona / Ciudad</th><th>Precio Privado</th><th>Referencia Portal</th><th>Brecha / Cruce</th></tr></thead><tbody>`;
+            
+            registrosPagina.forEach(i => {
+                const codigo = i.CODIGO || i.codigo || '-';
+                const ciudad = i.CIUDAD || i.ciudad || '';
+                const barrio = i.BARRIO || i.barrio || '';
+                const ciudadComp = ciudad + (barrio ? ` (${barrio})` : '');
+                const moneda = i.MONEDA || i.moneda || '';
+                const precio = i.PRECIO || i.precio || '0';
+
+                html += `<tr>
+                    <td><strong>${codigo}</strong></td>
+                    <td>${ciudadComp}</td>
+                    <td>${moneda} ${precio}</td>
+                    <td>U$ 1.150 / m² (Promedio Zona)</td>
+                    <td><span class="badge badge-active">Competitivo</span></td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            
+            html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding: 0.5rem 0;">
+                    <span style="font-size: 0.85rem; color: #6b7280;">
+                        Mostrando ${inicio + 1} a ${Math.min(fin, filtrados.length)} de ${filtrados.length} registros (Página ${paginaMercadoActual} de ${totalPaginas})
+                    </span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" 
+                                onclick="analizarMercado(${paginaMercadoActual - 1})" 
+                                ${paginaMercadoActual === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                            ◀ Anterior
+                        </button>
+                        <button class="btn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" 
+                                onclick="analizarMercado(${paginaMercadoActual + 1})" 
+                                ${paginaMercadoActual >= totalPaginas ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                            Siguiente ▶
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            contenedor.innerHTML = html;
+        }
+
+        function calcularTasacion() {
+            const terr = parseFloat(document.getElementById('valTerreno').value) || 0;
+            const constr = parseFloat(document.getElementById('valConstruccion').value) || 0;
+            const total = (terr * 150) + (constr * 650);
+            const elRes = document.getElementById('resultadoTasacion');
+            if(elRes) elRes.textContent = `USD ${total.toLocaleString()}`;
+        }
+    </script>
+</body>
+</html>
