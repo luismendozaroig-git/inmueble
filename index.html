@@ -84,8 +84,8 @@
                     <h3 id="lblEstadoSync" style="font-size: 1.25rem; color: #16a34a; margin-top:0.75rem;">Listo</h3>
                 </div>
                 <div class="card stat-card" style="border-left-color: #d97706;">
-                    <p>Ref. Mercado Externo</p>
-                    <h3 id="lblRefMercado">1.420 Reg.</h3>
+                    <p>Inmuebles Activos On-line</p>
+                    <h3 id="lblRefMercado">0 Activos</h3>
                 </div>
             </div>
             <div class="card">
@@ -191,7 +191,13 @@
                 <div class="form-group-full"><label>DIRECCION:</label><input type="text" id="f_direccion"></div>
                 <div><label>BARRIO:</label><input type="text" id="f_barrio"></div>
                 <div><label>CIUDAD:</label><input type="text" id="f_ciudad"></div>
-                <div><label>UBICACION (Google Maps):</label><input type="text" id="f_ubicacion"></div>
+                <div>
+                    <label>UBICACION (Google Maps):</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" id="f_ubicacion" style="margin-bottom:0;">
+                        <button type="button" class="btn btn-success" style="padding: 0.5rem 0.75rem; white-space: nowrap; font-size: 0.8rem;" onclick="capturarGeolocalizacion()">📍 GPS</button>
+                    </div>
+                </div>
                 <div><label>COORDENADA:</label><input type="text" id="f_coordenada"></div>
 
                 <div class="form-section-title">3. Valores y Estado</div>
@@ -253,9 +259,9 @@
                 barrio: "sajonia",
                 tipo: "CASA",
                 referencias: [
-                    { fuente: "InfoCasas", titulo: "Casa estilo chalet en Sajonia", superficie: 350, precioUsd: 195000, link: "https://www.infocasas.com.py" },
-                    { fuente: "Clasipar", titulo: "Propiedad s/ Av. Carlos A. López", superficie: 400, precioUsd: 220000, link: "https://clasipar.paraguay.com" },
-                    { fuente: "Portal Inmobiliario", titulo: "Residencia a remodelar en Sajonia", superficie: 380, precioUsd: 185000, link: "https://www.ultimahora.com" }
+                    { fuente: "InfoCasas", titulo: "Casa estilo chalet en Sajonia", superficie: 350, precioUsd: 195000, link: "https://www.infocasas.com.py/venta/casas/asuncion/sajonia" },
+                    { fuente: "Clasipar", titulo: "Propiedad s/ Av. Carlos A. López", superficie: 400, precioUsd: 220000, link: "https://clasipar.paraguay.com/inmuebles/casas/sajonia-asuncion" },
+                    { fuente: "Portal Inmobiliario", titulo: "Residencia a remodelar en Sajonia", superficie: 380, precioUsd: 185000, link: "https://www.ultimahora.com/clasificados/inmuebles/casas/asuncion/sajonia" }
                 ]
             },
             {
@@ -263,9 +269,9 @@
                 barrio: "no identificado",
                 tipo: "TERRENO",
                 referencias: [
-                    { fuente: "InfoCasas", titulo: "Terreno comercial sobre Av. Eusebio Ayala", superficie: 2000, precioUsd: 1650000, link: "https://www.infocasas.com.py" },
-                    { fuente: "Clasipar", titulo: "Predio gran porte zona Km 5", superficie: 2500, precioUsd: 1950000, link: "https://clasipar.paraguay.com" },
-                    { fuente: "RE/MAX", titulo: "Terreno para desarrollo comercial Eusebio Ayala", superficie: 2100, precioUsd: 1750000, link: "https://www.remax.com.py" }
+                    { fuente: "InfoCasas", titulo: "Terreno comercial sobre Av. Eusebio Ayala", superficie: 2000, precioUsd: 1650000, link: "https://www.infocasas.com.py/venta/terrenos/asuncion/eusebio-ayala" },
+                    { fuente: "Clasipar", titulo: "Predio gran porte zona Km 5", superficie: 2500, precioUsd: 1950000, link: "https://clasipar.paraguay.com/inmuebles/terrenos/asuncion" },
+                    { fuente: "RE/MAX", titulo: "Terreno para desarrollo comercial Eusebio Ayala", superficie: 2100, precioUsd: 1750000, link: "https://www.remax.com.py/listings/terreno-eusebio-ayala" }
                 ]
             },
             {
@@ -273,15 +279,14 @@
                 barrio: "valle ybate",
                 tipo: "CASA",
                 referencias: [
-                    { fuente: "InfoCasas", titulo: "Casa 3 dormitorios Valle Ybaté", superficie: 360, precioUsd: 135000, link: "https://www.infocasas.com.py" },
-                    { fuente: "Century21", titulo: "Chalet c/ piscina Lambaré", superficie: 320, precioUsd: 128000, link: "https://www.century21.com.py" },
-                    { fuente: "Clasipar", titulo: "Propiedad c/ amplio patio Bruno Guggiari", superficie: 380, precioUsd: 140000, link: "https://clasipar.paraguay.com" }
+                    { fuente: "InfoCasas", titulo: "Casa 3 dormitorios Valle Ybaté", superficie: 360, precioUsd: 135000, link: "https://www.infocasas.com.py/venta/casas/lambare/valle-ybate" },
+                    { fuente: "Century21", titulo: "Chalet c/ piscina Lambaré", superficie: 320, precioUsd: 128000, link: "https://www.century21.com.py/propiedades/lambare" },
+                    { fuente: "Clasipar", titulo: "Propiedad c/ amplio patio Bruno Guggiari", superficie: 380, precioUsd: 140000, link: "https://clasipar.paraguay.com/inmuebles/casas/lambare" }
                 ]
             }
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
-            // URL de Google Apps Script integrada por defecto para evitar bloqueos en celulares
             const urlDefectoCloud = "https://script.google.com/macros/s/AKfycbyoF2xxtjOlODDdI9gGog9jAj4dxJjNhzUstnDagrJWPuTW1aEIRl9O9h9AcWR2emOd/exec";
             
             const saved = localStorage.getItem('inmo_webapp');
@@ -319,17 +324,14 @@
         }
 
         function actualizarEstadisticas() {
-            // 1. Total general de registros en la base
             const elTotal = document.getElementById('lblTotalInm');
             if(elTotal) elTotal.textContent = baseInmuebles.length;
 
-            // 2. Contar cuántos inmuebles están en estado ACTIVO en línea
             const activosCount = baseInmuebles.filter(i => {
                 const estado = (i.ESTADO || i.estado || '').toUpperCase();
                 return estado === 'ACTIVO';
             }).length;
 
-            // 3. Actualizar el indicador visual de Mercado Externo o cambiarlo por Activos On-line
             const elRefMercado = document.getElementById('lblRefMercado');
             if(elRefMercado) {
                 elRefMercado.textContent = activosCount + " Activos";
@@ -440,6 +442,38 @@
 
         function cerrarModal() {
             document.getElementById('modalFormulario').classList.remove('active');
+        }
+
+        function capturarGeolocalizacion() {
+            if (!navigator.geolocation) {
+                mostrarAlerta("Tu navegador no soporta geolocalización.", "error");
+                return;
+            }
+
+            mostrarAlerta("Obteniendo ubicación GPS actual...", "success");
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    const linkMaps = `https://maps.google.com/?q=${lat},${lon}`;
+                    const textoCoordenadas = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+
+                    document.getElementById('f_ubicacion').value = linkMaps;
+                    document.getElementById('f_coordenada').value = textoCoordenadas;
+
+                    mostrarAlerta("¡Ubicación GPS capturada con éxito!");
+                },
+                (error) => {
+                    let mensajeError = "No se pudo obtener la ubicación.";
+                    if (error.code === error.PERMISSION_DENIED) {
+                        mensajeError = "Permiso de ubicación denegado. Habilítalo en tu navegador.";
+                    }
+                    mostrarAlerta(mensajeError, "error");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
         }
 
         function guardarFormulario() {
@@ -598,7 +632,7 @@
                             <td>${testigo.titulo}</td>
                             <td>${testigo.superficie} m²</td>
                             <td>USD ${testigo.precioUsd.toLocaleString('es-PY')}</td>
-                            <td><strong style="color: #059669;">USD ${pm2Testigo} /m²</strong></td>
+                            <td><strong style="color: #059669;">USD ${pm2Testigo.toLocaleString('es-PY')} /m²</strong></td>
                             <td>
                                 <a href="${testigo.link}" target="_blank" class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; text-decoration: none;">🔗 Ver Enlace</a>
                             </td>
