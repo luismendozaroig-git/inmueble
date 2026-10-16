@@ -281,16 +281,17 @@
         ];
 
         window.addEventListener('DOMContentLoaded', () => {
+            // URL de Google Apps Script integrada por defecto para evitar bloqueos en celulares
+            const urlDefectoCloud = "https://script.google.com/macros/s/AKfycbyoF2xxtjOlODDdI9gGog9jAj4dxJjNhzUstnDagrJWPuTW1aEIRl9O9h9AcWR2emOd/exec";
+            
             const saved = localStorage.getItem('inmo_webapp');
             if(saved) {
                 document.getElementById('inputWebApp').value = saved;
                 sincronizarDatos();
             } else {
-                baseInmuebles = [
-                    { CODIGO: "40000", ASESOR: "JORGE FRUTOS", MARCA: "PARTICULAR", MODALIDAD: "VENTA", TIPO: "TERRENO", DIRECCION: "AV. EUSEBIO AYALA 4788 - KM 6", BARRIO: "NO IDENTIFICADO", CIUDAD: "ASUNCION", MONEDA: "U$", PRECIO: "1.800.000", ESTADO: "SUSPENDIDO", TERRENO_M2: "2.250,00", CONSTR_M2: "0,00", UBICACION: "https://maps.app.goo.gl/eMTQ6GsBX6JQPcV36" }
-                ];
-                actualizarEstadisticas();
-                renderizarPublicaciones();
+                document.getElementById('inputWebApp').value = urlDefectoCloud;
+                localStorage.setItem('inmo_webapp', urlDefectoCloud);
+                sincronizarDatos();
             }
         });
 
