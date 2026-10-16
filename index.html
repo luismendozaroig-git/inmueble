@@ -319,8 +319,21 @@
         }
 
         function actualizarEstadisticas() {
+            // 1. Total general de registros en la base
             const elTotal = document.getElementById('lblTotalInm');
             if(elTotal) elTotal.textContent = baseInmuebles.length;
+
+            // 2. Contar cuántos inmuebles están en estado ACTIVO en línea
+            const activosCount = baseInmuebles.filter(i => {
+                const estado = (i.ESTADO || i.estado || '').toUpperCase();
+                return estado === 'ACTIVO';
+            }).length;
+
+            // 3. Actualizar el indicador visual de Mercado Externo o cambiarlo por Activos On-line
+            const elRefMercado = document.getElementById('lblRefMercado');
+            if(elRefMercado) {
+                elRefMercado.textContent = activosCount + " Activos";
+            }
         }
 
         async function sincronizarDatos() {
